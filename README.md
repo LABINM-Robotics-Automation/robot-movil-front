@@ -5,6 +5,9 @@ Frontend page for the robot movil, build over **React** framework.
 ### Steps to run the project
 
 ```bash
+# install the package
+npm i
+
 # run the front
 npm run dev
 
