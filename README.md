@@ -1,8 +1,6 @@
-# React + Vite
+# robot-movil-front
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
+Frontend page for the robot movil, build over **React** framework.
 
 ### Steps to run the project
 
