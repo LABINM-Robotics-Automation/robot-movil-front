@@ -2,11 +2,52 @@ import './App.css'
 import React, { useEffect, useState } from 'react';
 import ROSLIB from 'roslib';
 
-const ImageSubscriber = () => {
+function PlaceholderImage() {
+  const [placeholderSrc, setPlaceholderSrc] = useState('');
+
+  useEffect(() => {
+    // Create a canvas element
+    const canvas = document.createElement('canvas');
+    canvas.width = 400;
+    canvas.height = 300;
+    const ctx = canvas.getContext('2d');
+
+    // Set background color
+    ctx.fillStyle = '#333';  // Dark gray color
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Set text properties
+    ctx.fillStyle = '#FFF';  // White color for text
+    ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Draw text
+    ctx.fillText('Not Available', canvas.width / 2, canvas.height / 2);
+
+    // Convert canvas to an image source
+    setPlaceholderSrc(canvas.toDataURL('image/png'));
+  }, []);
+
+  return (
+    <div>
+      <img src={placeholderSrc} alt="Not Available" style={{ width: '100%', height: 'auto', paddingTop: '10px', opacity: 0.5 }} />
+    </div>
+  );
+}
+
+const ImageSubscriber = ({
+    cameraActive
+}) => {
   const [imageSrc, setImageSrc] = useState('');
 
   useEffect(() => {
-    // Connect to the ROS WebSocket server
+
+    if (!cameraActive){
+      setImageSrc('')
+      return
+    }
+    
     const ros = new ROSLIB.Ros({
       url: 'ws://localhost:9090' // Update with your ROS WebSocket server URL
     });
@@ -23,11 +64,10 @@ const ImageSubscriber = () => {
       console.log('Connection to ROS closed');
     });
 
-    // Create a ROS topic listener for the compressed image
     const imageTopic = new ROSLIB.Topic({
       ros: ros,
-      // name: '/zed2i/zed_node/right_raw/image_raw_color/compressed', // Update with your topic name
-      name: '/image_topic/compressed',
+      name: '/zed2i/zed_node/right_raw/image_raw_color/compressed',
+      // name: '/image_topic/compressed',
       messageType: 'sensor_msgs/CompressedImage'
     });
 
@@ -38,28 +78,19 @@ const ImageSubscriber = () => {
       for (let i = 0; i < len; i++) {
         bytes[i] = binaryString.charCodeAt(i);
       }
-
-      // Create a Blob from the byte array
       const blob = new Blob([bytes], { type: 'image/jpeg' });
-
-      // Create an object URL from the blob
       const imageUrl = URL.createObjectURL(blob);
-
-      // Create an offscreen canvas for resizing
       const img = new Image();
       img.src = imageUrl;
 
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-
-        // Set the canvas size to the target size (e.g., half of the original size)
-        const MAX_WIDTH = 800; // Set your desired max width
+        const MAX_WIDTH = 1000; // Set your desired max width
         const MAX_HEIGHT = 600; // Set your desired max height
         let width = img.width;
         let height = img.height;
 
-        // Calculate new dimensions maintaining the aspect ratio
         if (width > height) {
           if (width > MAX_WIDTH) {
             height *= MAX_WIDTH / width;
@@ -72,20 +103,11 @@ const ImageSubscriber = () => {
           }
         }
 
-        // Resize the canvas to the new dimensions
         canvas.width = width;
         canvas.height = height;
-
-        // Draw the image onto the canvas
         ctx.drawImage(img, 0, 0, width, height);
-
-        // Convert the canvas back to a Base64-encoded data URL
         const resizedDataUrl = canvas.toDataURL('image/jpeg');
-
-        // Set the resized image as the source
         setImageSrc(resizedDataUrl); // Assuming `setImageSrc` is your state setter for the image source
-
-        // Release the object URL after use
         URL.revokeObjectURL(imageUrl);
       };
     });
@@ -99,11 +121,16 @@ const ImageSubscriber = () => {
 
   return (
     <div>
-      {imageSrc ? (
-        <img src={imageSrc} alt="Received from ROS" style={{ width: '100%', height: 'auto', paddingTop: '10px' }} />
-      ) : (
-        <p>Loading image...</p>
-      )}
+      {imageSrc ? 
+        (<
+          img src={imageSrc} alt="Received from ROS" 
+          style={{ width: '100%', height: 'auto', paddingTop: '10px' }} 
+        />)
+        : 
+        (<
+          PlaceholderImage 
+        />)
+      }
     </div>
   );
 
@@ -111,4 +138,3 @@ const ImageSubscriber = () => {
 };
 
 export default ImageSubscriber;
-
