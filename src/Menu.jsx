@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import ImageSubscriber from './ImageSubscriber';
 import TopicIndicator from './TopicIndicator';
+import RecordingIndicator from './RecordingIndicator'
 
 function Menu() {
   const [cameraActive, setCameraActive] = useState(false); 
@@ -31,6 +32,7 @@ function Menu() {
     <div style={{ textAlign: 'center', marginTop: '10px' }}>
       <h2>Cámara Zed2i</h2>
       <TopicIndicator />
+      <RecordingIndicator />
       <ImageSubscriber cameraActive={true}/>
       <button onClick={() => handleRequest('/start_camera', 'POST')}> Iniciar cámara </button>
       <button onClick={() => handleRequest('/stop_camera' , 'POST')}> Detener cámara </button>
