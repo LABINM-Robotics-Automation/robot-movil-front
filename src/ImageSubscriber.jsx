@@ -2,14 +2,17 @@ import './App.css'
 import React, { useEffect, useState } from 'react';
 import ROSLIB from 'roslib';
 
-function PlaceholderImage() {
+function PlaceholderImage({
+    imageHeight = 100,
+    imageWidth = 100
+}) {
   const [placeholderSrc, setPlaceholderSrc] = useState('');
-
   useEffect(() => {
     // Create a canvas element
     const canvas = document.createElement('canvas');
-    canvas.width = 400;
-    canvas.height = 300;
+
+    canvas.width = imageWidth;
+    canvas.height = imageHeight;
     const ctx = canvas.getContext('2d');
 
     // Set background color
@@ -37,7 +40,9 @@ function PlaceholderImage() {
 }
 
 const ImageSubscriber = ({
-    cameraActive
+    cameraActive,
+    windowHeight = 100,
+    windowWidth = 100
 }) => {
   const [imageSrc, setImageSrc] = useState('');
 
@@ -49,7 +54,7 @@ const ImageSubscriber = ({
     }
     
     const ros = new ROSLIB.Ros({
-      url: 'ws://localhost:9090' // Update with your ROS WebSocket server URL
+      url: 'ws://localhost:9090'
     });
 
     ros.on('connection', () => {
@@ -86,13 +91,13 @@ const ImageSubscriber = ({
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        const MAX_WIDTH = 1000; // Set your desired max width
-        const MAX_HEIGHT = 600; // Set your desired max height
+        const MAX_WIDTH = windowWidth; // Set your desired max width
+        const MAX_HEIGHT = windowHeight; // 9000; // Set your desired max height
         let width = img.width;
         let height = img.height;
 
         if (width > height) {
-          if (width > MAX_WIDTH) {
+          if (width > MAX_WIDTH){
             height *= MAX_WIDTH / width;
             width = MAX_WIDTH;
           }
@@ -102,7 +107,7 @@ const ImageSubscriber = ({
             height = MAX_HEIGHT;
           }
         }
-
+        
         canvas.width = width;
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
@@ -128,7 +133,7 @@ const ImageSubscriber = ({
         />)
         : 
         (<
-          PlaceholderImage 
+          PlaceholderImage  imageHeight = {windowHeight} imageWidth = {windowWidth}  
         />)
       }
     </div>
