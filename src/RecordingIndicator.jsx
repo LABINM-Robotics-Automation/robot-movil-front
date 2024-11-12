@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ROSLIB from 'roslib';
 
-function RecordingIndicator() {
+function RecordingIndicator({
+  style = { textAlign: 'center', marginTop: '10px' } 
+}) {
   const [recordingActive, setRecordingActive] = useState(false);
 
   useEffect(() => {
@@ -28,7 +30,7 @@ function RecordingIndicator() {
   }, []);
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+    <div style={style}>
       <p style={{ color: recordingActive ? 'green' : 'red' }}>
         Recording Status: {recordingActive ? 'Active' : 'Inactive'}
       </p>
