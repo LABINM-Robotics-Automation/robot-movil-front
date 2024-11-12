@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ROSLIB from 'roslib';
 
-function CameraStatusIndicator() {
+function CameraStatusIndicator({
+  style = { textAlign: 'center', marginTop: '10px' }
+}) {
   const [cameraStatus, setCameraStatus] = useState(null); // true = active, false = inactive
   const [loading, setLoading] = useState(true);
 
@@ -45,15 +47,17 @@ function CameraStatusIndicator() {
     return () => clearInterval(intervalId);
   }, []);
 
+
+
   return (
-    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+    <div style={style}>
       {loading ? (
         <p>Checking...</p>
       ) : (
         <p style={{ color: cameraStatus ? 'green' : 'red' }}>
           Camera Status: {cameraStatus ? 'Active' : 'Inactive'}
         </p>
-      )}
+        )}
     </div>
   );
 }
