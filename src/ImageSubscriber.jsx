@@ -71,7 +71,7 @@ const ImageSubscriber = ({
 
     const imageTopic = new ROSLIB.Topic({
       ros: ros,
-      name: '/zed2i/zed_node/right_raw/image_raw_color/compressed',
+      name: '/zed2/zed_node/right/image_rect_color/compressed', //  /zed2i/zed_node/right_raw/image_raw_color/compressed',
       // name: '/image_topic/compressed',
       messageType: 'sensor_msgs/CompressedImage'
     });
