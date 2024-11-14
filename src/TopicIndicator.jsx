@@ -8,12 +8,12 @@ function CameraStatusIndicator({
   const [loading, setLoading] = useState(true);
 
   const ros = new ROSLIB.Ros({
-    url: 'ws://localhost:9090' // Replace with your ROSBridge server URL
+    url: 'ws://192.168.0.10:9090' // Replace with your ROSBridge server URL
   });
 
   const checkCameraStatus = () => {
-    const topicName = '/zed2i/zed_node/right_raw/image_raw_color/compressed';
-    const nodeName = '/zed2i/zed_node';
+    const topicName = '/zed2/zed_node/right/image_rect_color/compressed';
+    const nodeName = '/zed2/zed_node';
 
     // Check if the topic is active
     ros.getTopics((result) => {
