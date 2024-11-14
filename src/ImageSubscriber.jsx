@@ -54,7 +54,7 @@ const ImageSubscriber = ({
     }
     
     const ros = new ROSLIB.Ros({
-      url: 'ws://localhost:9090'
+      url: 'ws://192.168.0.10:9090'
     });
 
     ros.on('connection', () => {

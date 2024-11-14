@@ -27,7 +27,7 @@ function Menu() {
     try {
       const response = await axios({
         method: method,
-        url: `http://localhost:8000${endpoint}`, // Replace with your backend URL
+        url: `http://192.168.0.10:8000${endpoint}`, // Replace with your backend URL
         data: method !== 'GET' ? { key: 'value' } : null, // Include request body if needed
       });
 

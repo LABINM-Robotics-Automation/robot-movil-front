@@ -10,7 +10,7 @@ const FileList = (
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/list_files');
+        const response = await axios.get('http://192.168.0.10:8000/list_files');
         setFiles(response.data.files);
       } catch (error) {
         console.error('Error fetching files:', error);
@@ -23,14 +23,14 @@ const FileList = (
   }, []);
 
   const handleDownload = (fileName) => {
-    const fileUrl = `http://localhost:8000/download/${fileName}`;
+    const fileUrl = `http://192.168.0.10:8000/download/${fileName}`;
     window.location.href = fileUrl;
   };
 
 
   const handleDelete = async (fileName) => {
     try {
-      const response = await axios.delete(`http://localhost:8000/delete/${fileName}`);
+      const response = await axios.delete(`http://192.168.0.10:8000/delete/${fileName}`);
       if (response.status === 200) {
         setFiles((prevFiles) => prevFiles.filter((file) => file !== fileName));
         alert('File deleted successfully');
