@@ -12,7 +12,7 @@ function CameraStatusIndicator({
   });
 
   const checkCameraStatus = () => {
-    const topicName = '/zed2/zed_node/right/image_rect_color/compressed';
+    const topicName = '/zed2/zed_node/right/image_rect_color';
     const nodeName = '/zed2/zed_node';
 
     // Check if the topic is active
