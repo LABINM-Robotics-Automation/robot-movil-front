@@ -26,6 +26,8 @@ function Menu() {
 
   const handleRequest = async (endpoint, method = 'GET') => {
     try {
+      console.log(backend.defaults.baseURL + endpoint);
+
       const response = await backend({
         method: method,
         url: `${endpoint}`,
