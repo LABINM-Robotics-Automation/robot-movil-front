@@ -12,8 +12,8 @@ function CameraStatusIndicator({
   });
 
   const checkCameraStatus = () => {
-    const topicName = '/zed2/zed_node/right/image_rect_color';
-    const nodeName = '/zed2/zed_node';
+    const topicName = '/zed2i/zed_node/right_raw/image_raw_color';
+    const nodeName = '/zed2i/zed_node';
 
     // Check if the topic is active
     ros.getTopics((result) => {
