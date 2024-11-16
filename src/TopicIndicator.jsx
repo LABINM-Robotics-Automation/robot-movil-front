@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ROSLIB from 'roslib';
+import websocketUrl from './axiosInstance/websocketInstance.jsx'
 
 function CameraStatusIndicator({
   style = { textAlign: 'center', marginTop: '10px' }
@@ -7,9 +8,7 @@ function CameraStatusIndicator({
   const [cameraStatus, setCameraStatus] = useState(null); // true = active, false = inactive
   const [loading, setLoading] = useState(true);
 
-  const ros = new ROSLIB.Ros({
-    url: 'ws://192.168.0.10:9090' // Replace with your ROSBridge server URL
-  });
+  const ros = new ROSLIB.Ros(websocketUrl);  
 
   const checkCameraStatus = () => {
     const topicName = '/zed2i/zed_node/right_raw/image_raw_color';

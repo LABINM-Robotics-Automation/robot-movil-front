@@ -1,6 +1,8 @@
 import './App.css'
 import React, { useEffect, useState } from 'react';
 import ROSLIB from 'roslib';
+import websocketUrl from './axiosInstance/websocketInstance'
+
 
 function PlaceholderImage({
     imageHeight = 100,
@@ -53,9 +55,7 @@ const ImageSubscriber = ({
       return
     }
     
-    const ros = new ROSLIB.Ros({
-      url: 'ws://192.168.0.10:9090'
-    });
+    const ros = new ROSLIB.Ros(websocketUrl);
 
     ros.on('connection', () => {
       console.log('Connected to ROS');

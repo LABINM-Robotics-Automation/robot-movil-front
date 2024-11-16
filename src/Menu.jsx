@@ -4,6 +4,7 @@ import ImageSubscriber from './ImageSubscriber';
 import TopicIndicator from './TopicIndicator';
 import RecordingIndicator from './RecordingIndicator'
 import RecordedFilesList from './RecordedFileList'
+import backend from './axiosInstance/backendInstance'
 
 
 function Menu() {
@@ -25,12 +26,12 @@ function Menu() {
 
   const handleRequest = async (endpoint, method = 'GET') => {
     try {
-      const response = await axios({
+      const response = await backend({
         method: method,
-        url: `http://192.168.0.10:8000${endpoint}`, // Replace with your backend URL
-        data: method !== 'GET' ? { key: 'value' } : null, // Include request body if needed
+        url: `${endpoint}`,
+        data: method !== 'GET' ? { key: 'value' } : null,
       });
-
+      
       if (endpoint == '/stop_camera'){
         setTimeout(() => {
           window.location.reload();
