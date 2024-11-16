@@ -70,55 +70,79 @@ const ImageSubscriber = ({
       console.log('Connection to ROS closed');
     });
 
+
     const imageTopic = new ROSLIB.Topic({
       ros: ros,
-      name: '/zed2i/zed_node/right_raw/image_raw_color/compressed',
-      // name: '/image_topic/compressed',
-      messageType: 'sensor_msgs/CompressedImage'
+      name: '/zed2i/zed_node/right_raw/image_raw_color', // Uncompressed topic
+      messageType: 'sensor_msgs/Image'
     });
 
-    imageTopic.subscribe((message) => {
-      const binaryString = atob(message.data);  // Decode base64 data
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const blob = new Blob([bytes], { type: 'image/jpeg' });
-      const imageUrl = URL.createObjectURL(blob);
-      const img = new Image();
-      img.src = imageUrl;
+ 
+imageTopic.subscribe((message) => {
+  const { width, height, encoding } = message;
+  const binaryData = Uint8Array.from(atob(message.data), char => char.charCodeAt(0));
 
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+  // Create a temporary canvas
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = width;
+  canvas.height = height;
+
+  const imageData = ctx.createImageData(width, height);
+
+  if (encoding === 'bgra8') {
+    for (let i = 0, j = 0; i < binaryData.length; i += 4, j += 4) {
+      imageData.data[j] = binaryData[i + 2];     // Red
+      imageData.data[j + 1] = binaryData[i + 1]; // Green
+      imageData.data[j + 2] = binaryData[i];     // Blue
+      imageData.data[j + 3] = binaryData[i + 3]; // Alpha
+    }
+  } else {
+    console.error(`Unsupported encoding: ${encoding}`);
+    return;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+
+  // Convert canvas to a Blob
+  canvas.toBlob((blob) => {
+    if (blob) {
+      createImageBitmap(blob).then((imageBitmap) => {
+        // Now you can use the ImageBitmap to render or resize
+        const outputCanvas = document.createElement('canvas');
+        const outputCtx = outputCanvas.getContext('2d');
+
         const MAX_WIDTH = windowWidth; // Set your desired max width
-        const MAX_HEIGHT = windowHeight; // 9000; // Set your desired max height
-        let width = img.width;
-        let height = img.height;
+        const MAX_HEIGHT = windowHeight; // Set your desired max height
 
-        if (width > height) {
-          if (width > MAX_WIDTH){
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
-        } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
-          }
+        let scaleWidth = width;
+        let scaleHeight = height;
+
+        if (width > height && width > MAX_WIDTH) {
+          scaleHeight = (MAX_WIDTH / width) * height;
+          scaleWidth = MAX_WIDTH;
+        } else if (height > width && height > MAX_HEIGHT) {
+          scaleWidth = (MAX_HEIGHT / height) * width;
+          scaleHeight = MAX_HEIGHT;
         }
-        
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(img, 0, 0, width, height);
-        const resizedDataUrl = canvas.toDataURL('image/jpeg');
-        setImageSrc(resizedDataUrl); // Assuming `setImageSrc` is your state setter for the image source
-        URL.revokeObjectURL(imageUrl);
-      };
-    });
 
-    // Cleanup on component unmount
+        outputCanvas.width = scaleWidth;
+        outputCanvas.height = scaleHeight;
+
+        outputCtx.drawImage(imageBitmap, 0, 0, scaleWidth, scaleHeight);
+
+        const resizedDataUrl = outputCanvas.toDataURL('image/jpeg');
+        setImageSrc(resizedDataUrl); // Assuming `setImageSrc` is your state setter for the image source
+      }).catch((error) => {
+        console.error('Error creating ImageBitmap:', error);
+      });
+    } else {
+      console.error('Failed to create blob from canvas.');
+    }
+  }, 'image/jpeg'); // Specify the desired format
+});
+
+
     return () => {
       imageTopic.unsubscribe();
       ros.close();
