@@ -54,7 +54,8 @@ const ImageSubscriber = ({
       setImageSrc('')
       return
     }
-    
+  
+    console.log('webscoket: ', websocketUrl)
     const ros = new ROSLIB.Ros(websocketUrl);
 
     ros.on('connection', () => {
