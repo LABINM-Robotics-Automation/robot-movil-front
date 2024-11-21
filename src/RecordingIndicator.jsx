@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ROSLIB from 'roslib';
+import websocketUrl from './axiosInstance/websocketInstance'
 
 function RecordingIndicator({
   style = { textAlign: 'center', marginTop: '10px' } 
@@ -7,9 +8,8 @@ function RecordingIndicator({
   const [recordingActive, setRecordingActive] = useState(false);
 
   useEffect(() => {
-    const ros = new ROSLIB.Ros({
-      url: 'ws://192.168.0.10:9090' // Replace with your ROSBridge server URL
-    });
+
+    const ros = new ROSLIB.Ros(websocketUrl);  
 
     const checkRecordingNode = () => {
       ros.getNodes((nodes) => {

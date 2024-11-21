@@ -54,9 +54,7 @@ const ImageSubscriber = ({
       return
     }
     
-    const ros = new ROSLIB.Ros({
-      url: 'ws://localhost:9090'
-    });
+    const ros = new ROSLIB.Ros(websocketUrl);
 
     ros.on('connection', () => {
       console.log('Connected to ROS');
