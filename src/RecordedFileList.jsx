@@ -9,19 +9,20 @@ const FileList = (
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const response = await backend.axios.get('/list_files')
-        setFiles(response.data.files);
-      } catch (error) {
-        console.error('Error fetching files:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchFiles();
   }, []);
+
+  const fetchFiles = async () => {
+    try {
+      setLoading(true);
+      const { data } = await backend.axios.get('/list_files');
+      setFiles(data.files);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDownload = (fileName) => {
     const fileUrl = backend.buildUrl(`/download/${fileName}`);
@@ -30,21 +31,20 @@ const FileList = (
 
   const handleDelete = async (fileName) => {
     try {
+      const { status, data } = await backend.axios.delete(`/delete/${fileName}`);
 
-      const response = await backend.axios.delete(`/delete/${fileName}`)
-
-      if (response.status === 200) {
+      if (status === 200) {
         setFiles((prevFiles) => prevFiles.filter((file) => file !== fileName));
         alert('File deleted successfully');
       } else {
-        alert(response.data.error || 'Failed to delete the file');
+        alert(data?.error || 'Failed to delete the file');
       }
     } catch (error) {
       console.error('Error deleting file:', error);
       alert('Failed to delete the file');
     }
   };
-// <h2>Available Bag Files</h2>
+  
 
   return(
     <div style={{ ...styles.container }}>
