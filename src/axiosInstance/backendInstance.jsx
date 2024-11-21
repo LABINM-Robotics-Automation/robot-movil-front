@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const backend = {
-  ip: 'localhost',
+  // ip: 'localhost',
+  ip : '192.168.0.10',
   port: '8000',
   get url() {
     return `http://${this.ip}:${this.port}`;
