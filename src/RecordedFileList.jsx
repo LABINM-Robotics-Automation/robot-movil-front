@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import backend from './axiosInstance/backendInstance'
 import axios from 'axios';
 
 const FileList = (
@@ -10,7 +11,7 @@ const FileList = (
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const response = await axios.get('http://192.168.0.10:8000/list_files');
+        const response = await backend.axios.get('/list_files')
         setFiles(response.data.files);
       } catch (error) {
         console.error('Error fetching files:', error);
@@ -23,14 +24,15 @@ const FileList = (
   }, []);
 
   const handleDownload = (fileName) => {
-    const fileUrl = `http://192.168.0.10:8000/download/${fileName}`;
+    const fileUrl = backend.buildUrl(`/download/${fileName}`);
     window.location.href = fileUrl;
   };
 
-
   const handleDelete = async (fileName) => {
     try {
-      const response = await axios.delete(`http://192.168.0.10:8000/delete/${fileName}`);
+
+      const response = await backend.axios.delete(`/delete/${fileName}`)
+
       if (response.status === 200) {
         setFiles((prevFiles) => prevFiles.filter((file) => file !== fileName));
         alert('File deleted successfully');

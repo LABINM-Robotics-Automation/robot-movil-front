@@ -1,9 +1,18 @@
 import axios from 'axios';
 
-const backend = axios.create({
-  // baseURL: `http://192.168.0.10:8000${endpoint}`, // Replace with your backend URL
-  baseURL: `http://localhost:8000`,
-  // baseUrl: `http://127.0.0.1:8000${endpoint}`,
-})
+const backend = {
+  ip: 'localhost',
+  port: '8000',
+  get url() {
+    return `http://${this.ip}:${this.port}`;
+  },
+  get axios() {
+    return axios.create({ baseURL: this.url });
+  },
+  buildUrl(path) {
+    return `${this.url}${path}`;
+  },
+};
+
 
 export default backend;

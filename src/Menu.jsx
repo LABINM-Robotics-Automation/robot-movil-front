@@ -26,9 +26,7 @@ function Menu() {
 
   const handleRequest = async (endpoint, method = 'GET') => {
     try {
-      console.log(backend.defaults.baseURL + endpoint);
-
-      const response = await backend({
+      const response = await backend.axios({
         method: method,
         url: `${endpoint}`,
         data: method !== 'GET' ? { key: 'value' } : null,
