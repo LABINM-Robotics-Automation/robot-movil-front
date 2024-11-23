@@ -65,11 +65,23 @@ function Menu() {
             <button style={styles.button} onClick={() => handleRequest('/stop_camera', 'POST')}>
               Detener cámara
             </button>
+            <button style={styles.button} onClick={() => handleRequest('/start_image_processor', 'POST')}>
+              Iniciar procesador
+            </button>
+            <button style={styles.button} onClick={() => handleRequest('/stop_image_processor', 'POST')}>
+              Detener procesador
+            </button>
             <button style={styles.button} onClick={() => handleRequest('/start_record', 'POST')}>
               Iniciar grabación
             </button>
             <button style={styles.button} onClick={() => handleRequest('/stop_record', 'POST')}>
               Detener grabación
+            </button>
+            <button style={styles.button} onClick={() => handleRequest('/start_websocket', 'POST')}>
+              Iniciar websocket
+            </button>
+            <button style={styles.button} onClick={() => handleRequest('/stop_websocket', 'POST')}>
+              Detener websocket
             </button>
             <TopicIndicator style={styles.indicator} />
             <RecordingIndicator style={styles.indicator} />
