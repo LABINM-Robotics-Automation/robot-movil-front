@@ -35,13 +35,13 @@ chmod +x /scripts/start_front_server_in_laptop.sh
 ```
 2. Configura el inicio automático usando systemd:
 
-a. Crea un archivo de servicio de systemd:
+Crea un archivo de servicio de systemd:
 
 ```bash
 sudo nano /etc/systemd/system/robot_movil_front_server.service
 ```
 
-b. Añade el siguiente contenido al archivo:
+Añade el siguiente contenido al archivo:
 
 ```
 [Unit]
