@@ -2,24 +2,28 @@
 
 Frontend page for the robot movil, build over **React** framework.
 
-### Steps to run the project
+### Pasos para ejecutar el proyecto
 
-```bash
-# clone and enter to project
-git clone https://github.com/LABINM-Robotics-Automation/robot-movil-front.git
-cd robot-movil-front
+1. Clona e ingresa al proyecto:
+    ```bash
+    git clone https://github.com/LABINM-Robotics-Automation/robot-movil-front.git
+    cd robot-movil-front
+    ```
+2. Instala las dependenciaqs e inicia el servidor frontend
+    ```bash
+    npm i
+    npm run dev
+    ```
+3. Ejecuta el websocket en ROS:
+    ```bash
+    roslaunch rosbridge_server rosbridge_websocket.launch
+    ```
+4. Ejecuta algún nodo publicador de imágenes cómo la cámara Zed2i o una webcam:
 
-# install dependencies and start front
-npm i
-npm run dev
-
-# run the websocket server in ROS
-roslaunch rosbridge_server rosbridge_websocket.launch
-
-# run some image publisher like zed2i or a local (see example)
-cd ~/mobile_robot_iot/publisher/publisher_image/src
-rosrun mobile_robot_iot image_publisher_src.py
-```
+    ```bash
+    cd ~/mobile_robot_iot/publisher/publisher_image/src
+    rosrun mobile_robot_iot image_publisher_src.py
+    ```
 
 ### Procedimientos para configurar el servicio
 
@@ -42,8 +46,7 @@ Estos son los pasos para configurar el inicio automático del servidor `robot-mo
     ```
 
     Añade el siguiente contenido al archivo:
-
-    ```
+    ```bash
     [Unit]
     Description=React Server in tmux
     After=network.target
