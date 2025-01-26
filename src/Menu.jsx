@@ -8,100 +8,98 @@ import backend from './axiosInstance/backendInstance'
 
 
 function Menu() {
-  const [cameraActive, setCameraActive] = useState(false) 
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight)
-  const [windowWidth,  setWindowWidth] = useState(window.innerWidth)
-  const [activeMenu, setActiveMenu] = useState('camera'); // Track active menu ('camera' or 'files')
 
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowHeight(window.innerHeight);
-      setWindowWidth(window.innerWidth)
+    const [cameraActive, setCameraActive] = useState(false) 
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight)
+    const [windowWidth,  setWindowWidth] = useState(window.innerWidth)
+    const [activeMenu, setActiveMenu] = useState('camera'); // Track active menu ('camera' or 'files')
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowHeight(window.innerHeight);
+            setWindowWidth(window.innerWidth)
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {window.removeEventListener('resize', handleResize)};
+    }, []);
+
+
+    const handleRequest = async (endpoint, method = 'GET') => {
+        try {
+            const response = await backend.axios({
+                method: method,
+                url: `${endpoint}`,
+                data: method !== 'GET' ? { key: 'value' } : null,
+            });
+            
+            if (endpoint == '/stop_camera'){
+                setTimeout(() => {window.location.reload()}, 200);
+            }
+            console.log('Response:', response.data);
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
 
-  const handleRequest = async (endpoint, method = 'GET') => {
-    try {
-      const response = await backend.axios({
-        method: method,
-        url: `${endpoint}`,
-        data: method !== 'GET' ? { key: 'value' } : null,
-      });
-      
-      if (endpoint == '/stop_camera'){
-        setTimeout(() => {
-          window.location.reload();
-        }, 200);
-      }
-      console.log('Response:', response.data);
+    const toggleMenu = (menu) => setActiveMenu(menu);
 
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  const toggleMenu = (menu) => {
-    setActiveMenu(menu);
-  };
-
-  return (
+    return (
     <div style={{ ...styles.container, height: windowHeight * 0.8 }}>
-      {activeMenu === 'camera' && (
+        {activeMenu === 'camera' && (
         <div style={{ ...styles.container, height: windowHeight * 0.8 }} >
-          <div style={styles.imageContainer}>
+            <div style={styles.imageContainer}>
             <ImageSubscriber cameraActive={true} windowHeight={windowHeight} windowWidth={windowWidth} />
-          </div>
-          <div style={styles.controlsContainer}>
+            </div>
+            <div style={styles.controlsContainer}>
             <button style={styles.button} onClick={() => toggleMenu('files')}>
-              Menú archivos guardados
+                Menú archivos guardados
             </button>
             <button style={styles.button} onClick={() => handleRequest('/start_camera', 'POST')}>
-              Iniciar cámara
+                Iniciar cámara
             </button>
             <button style={styles.button} onClick={() => handleRequest('/stop_camera', 'POST')}>
-              Detener cámara
+                Detener cámara
             </button>
             <button style={styles.button} onClick={() => handleRequest('/start_image_processor', 'POST')}>
-              Iniciar procesador
+                Iniciar procesador
             </button>
             <button style={styles.button} onClick={() => handleRequest('/stop_image_processor', 'POST')}>
-              Detener procesador
-            </button>
-            <button style={styles.button} onClick={() => handleRequest('/start_record', 'POST')}>
-              Iniciar grabación
-            </button>
-            <button style={styles.button} onClick={() => handleRequest('/stop_record', 'POST')}>
-              Detener grabación
+                Detener procesador
             </button>
             <button style={styles.button} onClick={() => handleRequest('/start_websocket', 'POST')}>
-              Iniciar websocket
+                Iniciar websocket
             </button>
             <button style={styles.button} onClick={() => handleRequest('/stop_websocket', 'POST')}>
-              Detener websocket
+                Detener websocket
+            </button>
+            <button style={styles.button} onClick={() => handleRequest('/start_record', 'POST')}>
+                Iniciar grabación
+            </button>
+            <button style={styles.button} onClick={() => handleRequest('/stop_record', 'POST')}>
+                Detener grabación
             </button>
             <TopicIndicator style={styles.indicator} />
             <RecordingIndicator style={styles.indicator} />
-          </div>
+            </div>
         </div>
-      )}
-      {activeMenu === 'files' && (
+        )}
+        {activeMenu === 'files' && (
         <div style={{ ...styles.container, height: 200}} >
-          <div style={{ width: 1100}}>
-          <RecordedFilesList windowWidth={1100}/>
-          </div>
-          <div style={styles.controlsContainer}>
+            <div style={{ width: 1100}}>
+            <RecordedFilesList windowWidth={1100}/>
+            </div>
+            <div style={styles.controlsContainer}>
             <button style={styles.button} onClick={() => toggleMenu('camera')}>
-              Menú cámara Zed
+                Menú cámara Zed
             </button>
-          </div>
+            </div>
         </div>)
         }
     </div>
-  ); 
+    ); 
 }
 
 const styles = {
