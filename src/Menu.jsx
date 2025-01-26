@@ -111,11 +111,11 @@ function Menu() {
                 Menú archivos guardados
             </button>
 
-            <button style={styles.button} onClick={startCameraSequence()}>
+            <button style={styles.button} onClick={startCameraSequence}>
                 Iniciar cámara
             </button>
 
-            <button style={styles.button} onClick={stopCameraSequence()}>
+            <button style={styles.button} onClick={stopCameraSequence}>
                 Detener cámara
             </button>
 
