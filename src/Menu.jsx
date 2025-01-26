@@ -44,6 +44,58 @@ function Menu() {
         }
     };
 
+    const startCameraSequence = async () => {
+        try {
+            // Show loading state if needed
+            console.log('Iniciando secuencia de requests...');
+            
+            // Execute requests in sequence
+            await handleRequest('/start_camera', 'POST');
+            console.log('Cámara iniciada');
+            
+            // Wait a bit for camera to initialize
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await handleRequest('/start_image_processor', 'POST');
+            console.log('Procesador iniciado');
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await handleRequest('/start_websocket', 'POST');
+            console.log('Websocket iniciado');
+            
+            console.log('Secuencia completada exitosamente');
+        } catch (error) {
+            console.error('Error en la secuencia:', error);
+        }
+    }
+
+    const stopCameraSequence = async () => {
+        try {
+            // Show loading state if needed
+            console.log('Iniciando secuencia de requests...');
+            
+            // Execute requests in sequence
+            await handleRequest('/stop_camera', 'POST');
+            console.log('Cámara detenida');
+            
+            // Wait a bit for camera to initialize
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await handleRequest('/stop_image_processor', 'POST');
+            console.log('Procesador detenido');
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await handleRequest('/stop_websocket', 'POST');
+            console.log('Websocket detenido');
+            
+            console.log('Secuencia completada exitosamente');
+        } catch (error) {
+            console.error('Error en la secuencia:', error);
+        }
+    }
+
     const toggleMenu = (menu) => setActiveMenu(menu);
 
     return (
@@ -54,33 +106,26 @@ function Menu() {
             <ImageSubscriber cameraActive={true} windowHeight={windowHeight} windowWidth={windowWidth} />
             </div>
             <div style={styles.controlsContainer}>
+
             <button style={styles.button} onClick={() => toggleMenu('files')}>
                 Menú archivos guardados
             </button>
-            <button style={styles.button} onClick={() => handleRequest('/start_camera', 'POST')}>
+
+            <button style={styles.button} onClick={startCameraSequence()}>
                 Iniciar cámara
             </button>
-            <button style={styles.button} onClick={() => handleRequest('/stop_camera', 'POST')}>
+
+            <button style={styles.button} onClick={stopCameraSequence()}>
                 Detener cámara
             </button>
-            <button style={styles.button} onClick={() => handleRequest('/start_image_processor', 'POST')}>
-                Iniciar procesador
-            </button>
-            <button style={styles.button} onClick={() => handleRequest('/stop_image_processor', 'POST')}>
-                Detener procesador
-            </button>
-            <button style={styles.button} onClick={() => handleRequest('/start_websocket', 'POST')}>
-                Iniciar websocket
-            </button>
-            <button style={styles.button} onClick={() => handleRequest('/stop_websocket', 'POST')}>
-                Detener websocket
-            </button>
+
             <button style={styles.button} onClick={() => handleRequest('/start_record', 'POST')}>
                 Iniciar grabación
             </button>
             <button style={styles.button} onClick={() => handleRequest('/stop_record', 'POST')}>
                 Detener grabación
             </button>
+
             <TopicIndicator style={styles.indicator} />
             <RecordingIndicator style={styles.indicator} />
             </div>
