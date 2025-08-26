@@ -1,144 +1,105 @@
-import './App.css'
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import ROSLIB from 'roslib';
-import websocketUrl from './axiosInstance/websocketInstance'
+import websocketUrl from './axiosInstance/websocketInstance';
 
-function PlaceholderImage({
-    imageHeight = 100,
-    imageWidth = 100
-}) {
-  const [placeholderSrc, setPlaceholderSrc] = useState('');
-  useEffect(() => {
-    // Create a canvas element
-    const canvas = document.createElement('canvas');
-
-    canvas.width = imageWidth;
-    canvas.height = imageHeight;
-    const ctx = canvas.getContext('2d');
-
-    // Set background color
-    ctx.fillStyle = '#333';  // Dark gray color
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Set text properties
-    ctx.fillStyle = '#FFF';  // White color for text
-    ctx.font = 'bold 24px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    // Draw text
-    ctx.fillText('Not Available', canvas.width / 2, canvas.height / 2);
-
-    // Convert canvas to an image source
-    setPlaceholderSrc(canvas.toDataURL('image/png'));
-  }, []);
-
-  return (
-    <div>
-      <img src={placeholderSrc} alt="Not Available" style={{ width: '100%', height: 'auto', paddingTop: '10px', opacity: 0.5 }} />
-    </div>
-  );
-}
+const drawPlaceholder = (ctx, width, height) => {
+  ctx.fillStyle = '#333';
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = '#FFF';
+  ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Not Available', width / 2, height / 2);
+};
 
 const ImageSubscriber = ({
-    cameraActive,
-    windowHeight = 100,
-    windowWidth = 100
+  cameraActive,
+  windowHeight = 100,
+  windowWidth = 100,
 }) => {
-  const [imageSrc, setImageSrc] = useState('');
+  const canvasRef = useRef(null);
+
+  // Solo dibuja el placeholder si la cámara se desactiva
+  useEffect(() => {
+    if (!cameraActive) {
+      const canvas = canvasRef.current;
+      if (canvas) drawPlaceholder(canvas.getContext('2d'), canvas.width, canvas.height);
+    }
+  }, [cameraActive, windowHeight, windowWidth]);
 
   useEffect(() => {
+    if (!cameraActive) return;
 
-    if (!cameraActive){
-      setImageSrc('')
-      return
-    }
-    
     const ros = new ROSLIB.Ros(websocketUrl);
 
-    ros.on('connection', () => {
-      console.log('Connected to ROS');
-    });
-
-    ros.on('error', (error) => {
-      console.log('Error connecting to ROS: ', error);
-    });
-
-    ros.on('close', () => {
-      console.log('Connection to ROS closed');
-    });
-
     const imageTopic = new ROSLIB.Topic({
-      ros: ros,
-      // name: '/zed2i/zed_node/right_raw/image_raw_color/compressed',
+      ros,
       name: '/processed_image/compressed',
-      messageType: 'sensor_msgs/CompressedImage'
+      messageType: 'sensor_msgs/CompressedImage',
     });
 
     imageTopic.subscribe((message) => {
-      const binaryString = atob(message.data);  // Decode base64 data
+      const binaryString = atob(message.data);
       const len = binaryString.length;
       const bytes = new Uint8Array(len);
       for (let i = 0; i < len; i++) {
         bytes[i] = binaryString.charCodeAt(i);
       }
       const blob = new Blob([bytes], { type: 'image/jpeg' });
-      const imageUrl = URL.createObjectURL(blob);
-      const img = new Image();
-      img.src = imageUrl;
-
+      const url = URL.createObjectURL(blob);
+      const img = new window.Image();
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const MAX_WIDTH = windowWidth; // Set your desired max width
-        const MAX_HEIGHT = windowHeight; // 9000; // Set your desired max height
-        let width = img.width;
-        let height = img.height;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        let drawWidth = img.width;
+        let drawHeight = img.height;
 
-        if (width > height) {
-          if (width > MAX_WIDTH){
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
+        // Ajuste de tamaño proporcional
+        const maxW = windowWidth;
+        const maxH = windowHeight;
+        if (drawWidth > drawHeight) {
+          if (drawWidth > maxW) {
+            drawHeight *= maxW / drawWidth;
+            drawWidth = maxW;
           }
         } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
+          if (drawHeight > maxH) {
+            drawWidth *= maxH / drawHeight;
+            drawHeight = maxH;
           }
         }
-        
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(img, 0, 0, width, height);
-        const resizedDataUrl = canvas.toDataURL('image/jpeg');
-        setImageSrc(resizedDataUrl); // Assuming `setImageSrc` is your state setter for the image source
-        URL.revokeObjectURL(imageUrl);
+        canvas.width = drawWidth;
+        canvas.height = drawHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, drawWidth, drawHeight);
+        URL.revokeObjectURL(url);
       };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
     });
 
-    // Cleanup on component unmount
     return () => {
       imageTopic.unsubscribe();
       ros.close();
+      // Si se desmonta el componente, no hace falta poner placeholder aquí
     };
-  }, []);
+  }, [cameraActive, windowHeight, windowWidth]);
 
   return (
-    <div>
-      {imageSrc ? 
-        (<
-          img src={imageSrc} alt="Received from ROS" 
-          style={{ width: '100%', height: 'auto', paddingTop: '10px' }} 
-        />)
-        : 
-        (<
-          PlaceholderImage  imageHeight = {windowHeight} imageWidth = {windowWidth}  
-        />)
-      }
-    </div>
+    <canvas
+      ref={canvasRef}
+      width={windowWidth}
+      height={windowHeight}
+      style={{
+        width: '100%',
+        height: 'auto',
+        background: '#222',
+        display: 'block',
+      }}
+    />
   );
-
-
 };
 
-export default ImageSubscriber;
+export default ImageSubscriber;   
